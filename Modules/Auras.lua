@@ -106,35 +106,44 @@ do
     end ]]
 
     while true do
-      name, icon, count, debuffType, duration, expirationTime, source, _, _, id = func(unit, index)
-      --print(name, " ", icon , " ", duration)
+      --name, icon, count, debuffType, duration, expirationTime, source, _, _, id = func(unit, index)
+      
+      local auraData = func(unit, index)      
 
-      local altID = SPELL_ALIASES["SPELL_" .. (id or "none")]
-      if not name then break end
+       -- if not auraData.name then
+        if not auraData then
+          print("----------------break ")
+          break
+        end
 
-      -- Handle Roll The Bones
-      if altID then
-        count = 0
-        name, rank, icon, _ = GetSpellInfo(altID)
-        for i = 1, 128 do
-          local auraName, _, _, _, _, _, _, _, _, auraID = func(unit, i)
-          if not auraName then break end
-          if COLLAPSE_SPELLS["SPELL_" .. (auraID or "none")] == altID then
-            count = count + 1
+        print(index , " - " ,auraData.name, " ", auraData.icon , " ", auraData.duration)
+
+        local altID = SPELL_ALIASES["SPELL_" .. (auraData.id or "none")]
+        
+        -- Handle Roll The Bones
+        if auraData.altID then
+          count = 0
+          name, rank, icon, _ = GetSpellInfo(auraData.altID)
+          for i = 1, 128 do
+            local auraData = func(unit, i)
+            if not auraData.name then break end
+            if COLLAPSE_SPELLS["SPELL_" .. (auraData.auraID or "none")] == altID then
+              count = count + 1
+            end
           end
         end
-      end
 
-      local filterValid = filterSource == nil or filterSource and source and UnitIsUnit(filterSource, source)
+        local filterValid = filterSource == nil or filterSource and source and UnitIsUnit(filterSource, auraData.source)
 
-      if duration > 0 and filterValid then
-        local uid = getuid(unit, uidstr, name, icon)
+        if auraData.duration > 0 and filterValid then
+          local uid = getuid(unit, uidstr, name, icon)
 
-        SexyCooldown:AddItem(uid, name, icon, expirationTime - duration, duration, count, filter, showBuffHyperlink, unit, index, funcFilter)
-        buffs[uid] = true
-        tmp[uid] = nil
-      end
-      index = index + 1
+          SexyCooldown:AddItem(uid, name, icon, expirationTime - duration, duration, count, filter, showBuffHyperlink, unit, index, funcFilter)
+          buffs[uid] = true
+          tmp[uid] = nil
+        end
+        index = index + 1
+
     end
   end
 

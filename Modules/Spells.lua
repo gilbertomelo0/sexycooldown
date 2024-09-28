@@ -155,7 +155,7 @@ function mod:UpdateSpellCooldowns(spellQueue, spellSet, filter)
   local added = false
 
   for _, name in ipairs(spellQueue) do
-    start, duration, active = GetSpellCooldown(name)
+    start, duration, active = C_Spell.GetSpellCooldown(name)
     if active == 1 and start > 0 and duration > 3 then
       local name, _, icon = GetSpellInfo(name)
       local id = spellSet[name] or getID(name)
@@ -183,7 +183,7 @@ end
 
 function mod:CleanupSpellCooldowns(spellQueue, spellSet, filter)
   for name, id in pairs(spellSet) do
-    local start, duration, active = GetSpellCooldown(name)
+    local start, duration, active = C_Spell.GetSpellCooldown(name)
     if start == 0 then
       SexyCooldown:RemoveItem("spell:" .. id)
     end
