@@ -5,14 +5,46 @@ local aniFrame = CreateFrame("Frame")
 local spells = { PLAYER = {}, PET = {} }
 local lastPlayerSpell, lastPetSpell = {}, {}
 
+--[[
 local function cacheSpellsForBook(t, book)
   wipe(t)
-  for i = 1, GetNumSpellTabs() do
-    local tabName, _, offset, numSpells = GetSpellTabInfo(i)
+  for i = 1, C_SpellBook.GetNumSpellBookSkillLines() do
+    local tabName, _, offset, numSpells = C_SpellBook.GetSpellBookSkillLineInfo(i)
+    print(offset)
     for j = offset + 1, offset + numSpells do
       local name = GetSpellBookItemName(j, book)
       if name then
         local link = GetSpellLink(j, book)
+        if link then
+          local id = tonumber(link:match("spell:(%d+)"))
+          if id and id > 0 then
+            t[name] = id
+          end
+        end
+      end
+    end
+  end
+end
+]]
+-- local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(1)
+-- print (C_SpellBook.GetNumSpellBookSkillLines())
+-- print (skillLineInfo.name , skillLineInfo.itemIndexOffset)
+
+local function cacheSpellsForBook(t, book)
+  wipe(t)
+  for i = 1, C_SpellBook.GetNumSpellBookSkillLines() do
+    local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(i)
+    local offset = skillLineInfo.itemIndexOffset
+    local numSpells = skillLineInfo.numSpellBookItems
+    
+    for j = offset + 1, offset + numSpells do
+
+      local name, subName = C_SpellBook.GetSpellBookItemName(j, Enum.SpellBookSpellBank.Player)
+      local spellBookItemInfo = C_SpellBook.GetSpellBookItemInfo(j, Enum.SpellBookSpellBank.Player)
+      --print (name, " spellBookItemInfo.actionID: " , spellBookItemInfo.actionID , " ", C_Spell.GetSpellLink(spellBookItemInfo.actionID))
+
+      if name then
+        local link = C_Spell.GetSpellLink(spellBookItemInfo.actionID)
         if link then
           local id = tonumber(link:match("spell:(%d+)"))
           if id and id > 0 then
@@ -137,7 +169,8 @@ function mod:UpdateSpellCooldowns(spellQueue, spellSet, filter)
 
   if not added then
     for name, id in pairs(spellSet) do
-      start, duration, active = GetSpellCooldown(name)
+      -- OLD start, duration, active = GetSpellCooldown(name)
+      start, duration, active = C_Spell.GetSpellCooldown(name)
       if active == 1 and start > 0 and duration > 3 then
         local name, _, icon = GetSpellInfo(name)
         local id = spellSet[name] or getID(name)

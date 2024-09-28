@@ -127,7 +127,8 @@ function barPrototype:Init()
   self:EnableMouse(true)
   self:SetMovable(true)
   self:SetResizable(true)
-  self:SetMinResize(20, 10)
+  self:SetResizeBounds(20, 10)
+  
 
   local grip = CreateFrame("Frame", nil, self)
   grip:EnableMouse(true)

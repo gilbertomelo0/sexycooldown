@@ -94,8 +94,21 @@ do
     local buffs = existingBuffs[unit]
     local name, rank, icon, count, debuffType, duration, expirationTime, source, index, id
     index = 1
+
+    for i = 1, 10 do
+      auraData = C_UnitAuras.GetBuffDataByIndex("player",i)
+      if auraData.duration > 0 then
+        print(auraData.name , auraData.duration)
+      end
+    end
+    --[[ for key, value in pairs(auraData) do
+      print("Key:", key, "Value:", value)
+    end ]]
+
     while true do
       name, icon, count, debuffType, duration, expirationTime, source, _, _, id = func(unit, index)
+      --print(name, " ", icon , " ", duration)
+
       local altID = SPELL_ALIASES["SPELL_" .. (id or "none")]
       if not name then break end
 
@@ -136,6 +149,7 @@ do
     end
     wipe(buffs)
 
+    --[[ OLD
     local name, rank, icon, count, debuffType, duration, expirationTime, source, index
     if unit == "player" then
       check(unit, "buff", "BUFFS_ON_ME", UnitBuff, "HELPFUL")
@@ -152,6 +166,25 @@ do
     elseif unit == "focus" then
       check(unit, "buff", "MY_FOCUS_BUFFS", UnitBuff, "HELPFUL", "player")
       check(unit, "debuff", "MY_FOCUS_DEBUFFS", UnitDebuff, "HARMFUL", "player")
+    end
+    ]]
+
+    local name, rank, icon, count, debuffType, duration, expirationTime, source, index
+    if unit == "player" then
+      check(unit, "buff", "BUFFS_ON_ME", C_UnitAuras.GetBuffDataByIndex , "HELPFUL")
+      check(unit, "debuff", "DEBUFFS_ON_ME", C_UnitAuras.GetDebuffDataByIndex, "HARMFUL")
+
+      check(unit, "buff", "MY_BUFFS_ON_ME", C_UnitAuras.GetBuffDataByIndex , "HELPFUL", "player")
+      check(unit, "debuff", "MY_DEBUFFS_ON_ME", C_UnitAuras.GetDebuffDataByIndex, "HARMFUL", "player")
+    elseif unit == "target" then
+      check(unit, "buff", "ALL_TARGET_BUFFS", C_UnitAuras.GetBuffDataByIndex , "HELPFUL")
+      check(unit, "debuff", "ALL_TARGET_DEBUFFS", C_UnitAuras.GetDebuffDataByIndex, "HARMFUL")
+
+      check(unit, "buff", "MY_TARGET_BUFFS", C_UnitAuras.GetBuffDataByIndex , "HELPFUL", "player")
+      check(unit, "debuff", "MY_DEBUFFS", C_UnitAuras.GetDebuffDataByIndex, "HARMFUL", "player")
+    elseif unit == "focus" then
+      check(unit, "buff", "MY_FOCUS_BUFFS", C_UnitAuras.GetBuffDataByIndex , "HELPFUL", "player")
+      check(unit, "debuff", "MY_FOCUS_DEBUFFS", C_UnitAuras.GetDebuffDataByIndex, "HARMFUL", "player")
     end
 
     for k, v in pairs(tmp) do
