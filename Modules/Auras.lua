@@ -89,27 +89,33 @@ do
   end
 
   local function check(unit, uidstr, filter, func, funcFilter, filterSource)
+    
+    for index = 1, 200 do
+      auraData = C_UnitAuras.GetAuraDataByIndex("player",index,"HELPFUL")
+
+      if not auraData then break end
+      if auraData.duration > 0 then
+        print(auraData.name , auraData.duration , auraData.spellId)
+
+        print ("Cooldown created: ", auraData.name)
+        local uid = getuid(unit, uidstr, auraData.name, auraData.icon)
+        SexyCooldown:AddItem(uid, auraData.name, auraData.icon, auraData.expirationTime - auraData.duration, auraData.duration, 1, filter, showBuffHyperlink, unit, index, funcFilter)
+      end
+    end
+
     if not SexyCooldown:IsFilterRegistered(filter) then return end
+    print("----------------break ")
 
     local buffs = existingBuffs[unit]
     local name, rank, icon, count, debuffType, duration, expirationTime, source, index, id
     index = 1
 
-    for i = 1, 10 do
-      auraData = C_UnitAuras.GetBuffDataByIndex("player",i)
-      if auraData.duration > 0 then
-        print(auraData.name , auraData.duration)
-      end
-    end
-    --[[ for key, value in pairs(auraData) do
-      print("Key:", key, "Value:", value)
-    end ]]
+
 
     while true do
       --name, icon, count, debuffType, duration, expirationTime, source, _, _, id = func(unit, index)
       
       local auraData = func(unit, index)      
-
        -- if not auraData.name then
         if not auraData then
           print("----------------break ")
@@ -137,6 +143,7 @@ do
 
         if auraData.duration > 0 and filterValid then
           local uid = getuid(unit, uidstr, name, icon)
+          print ("Cooldown created: ", name)
 
           SexyCooldown:AddItem(uid, name, icon, expirationTime - duration, duration, count, filter, showBuffHyperlink, unit, index, funcFilter)
           buffs[uid] = true

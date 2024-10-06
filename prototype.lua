@@ -488,8 +488,9 @@ do
   end
 
   function barPrototype:CreateCooldown(uid, name, icon, startTime, duration, stacks, filter, callback, ...)
-    if not filterValid(self, filter) then return end
 
+    if not filterValid(self, filter) then return end
+    print("called Create cooldown")
     if duration < self.settings.bar.minDuration or duration - (GetTime() - startTime) + 0.5 < self.settings.bar.minDuration then return end
     if duration > self.settings.bar.maxDuration and self.settings.bar.maxDuration ~= 0 then return end
 
